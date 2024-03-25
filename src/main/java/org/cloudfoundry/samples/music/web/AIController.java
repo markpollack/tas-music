@@ -1,28 +1,23 @@
 package org.cloudfoundry.samples.music.web;
 
-import java.io.IOException;
-import java.util.*;
-
 import org.cloudfoundry.samples.music.config.ai.MessageRetriever;
 import org.cloudfoundry.samples.music.domain.Album;
-import org.cloudfoundry.samples.music.domain.MessageRequest;
 import org.cloudfoundry.samples.music.domain.Message;
+import org.cloudfoundry.samples.music.domain.MessageRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.springframework.ai.client.Generation;
+import org.springframework.ai.chat.Generation;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
-import org.springframework.core.env.Environment;
-import org.springframework.data.repository.CrudRepository;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.pivotal.cfenv.core.CfEnv;
-import jakarta.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @Profile("llm")

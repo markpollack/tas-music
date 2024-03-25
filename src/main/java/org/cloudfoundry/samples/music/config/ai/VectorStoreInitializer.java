@@ -16,11 +16,6 @@
 
 package org.cloudfoundry.samples.music.config.ai;
 
-import java.util.List;
-
-import org.cloudfoundry.samples.music.web.AIController;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.reader.JsonReader;
 import org.springframework.ai.vectorstore.VectorStore;
@@ -28,6 +23,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.io.Resource;
+
+import java.util.List;
 
 /**
  *

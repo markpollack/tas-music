@@ -16,22 +16,23 @@
 
 package org.cloudfoundry.samples.music.config.ai;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.ai.chat.ChatClient;
+import org.springframework.ai.chat.ChatResponse;
+import org.springframework.ai.chat.Generation;
+import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.ai.chat.prompt.SystemPromptTemplate;
+import org.springframework.ai.document.Document;
+import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.ai.client.AiClient;
-import org.springframework.ai.client.AiResponse;
-import org.springframework.ai.client.Generation;
-import org.springframework.ai.document.Document;
-import org.springframework.ai.prompt.Prompt;
-import org.springframework.ai.prompt.SystemPromptTemplate;
-import org.springframework.ai.prompt.messages.Message;
-import org.springframework.ai.prompt.messages.UserMessage;
-import org.springframework.ai.retriever.VectorStoreRetriever;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
 
 /**
  *
@@ -42,19 +43,19 @@ public class MessageRetriever {
 	@Value("classpath:/prompts/system-qa.st")
 	private Resource systemPrompt;
 
-	private VectorStoreRetriever vectorStoreRetriever;
+	private VectorStore vectorStore;
 
-	private AiClient aiClient;
+	private ChatClient chatClient;
 
 	private static final Logger logger = LoggerFactory.getLogger(MessageRetriever.class);
 	
-	public MessageRetriever(VectorStoreRetriever vectorStoreRetriever, AiClient aiClient) {
-		this.vectorStoreRetriever = vectorStoreRetriever;
-		this.aiClient = aiClient;
+	public MessageRetriever(VectorStore vectorStore, ChatClient chatClient) {
+		this.vectorStore = vectorStore;
+		this.chatClient = chatClient;
 	}
 
 	public Generation retrieve(String message) {
-		List<Document> relatedDocuments = this.vectorStoreRetriever.retrieve(message);
+		List<Document> relatedDocuments = this.vectorStore.similaritySearch(message);
 
 		logger.info("first doc retrieved " + relatedDocuments.get(0).toString());
 
@@ -64,17 +65,15 @@ public class MessageRetriever {
 
 		Prompt prompt = new Prompt(List.of(systemMessage, userMessage));
 
-		AiResponse response = aiClient.generate(prompt);
+		ChatResponse chatResponse = this.chatClient.call(prompt);
 
-		return response.getGeneration();
+		return chatResponse.getResult();
 	}
 
 	private Message getSystemMessage(List<Document> relatedDocuments) {
-
 		String documents = relatedDocuments.stream().map(entry -> entry.getContent()).collect(Collectors.joining("\n"));
 		SystemPromptTemplate systemPromptTemplate = new SystemPromptTemplate(systemPrompt);
 		Message systemMessage = systemPromptTemplate.createMessage(Map.of("documents", documents));
 		return systemMessage;
-
 	}
 }

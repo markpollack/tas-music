@@ -16,16 +16,13 @@
 
 package org.cloudfoundry.samples.music.config.ai;
 
-import org.springframework.ai.client.AiClient;
-import org.springframework.ai.embedding.EmbeddingClient;
-import org.springframework.ai.retriever.VectorStoreRetriever;
-import org.springframework.ai.vectorstore.PgVectorStore;
+import org.springframework.ai.chat.ChatClient;
 import org.springframework.ai.vectorstore.VectorStore;
-import org.springframework.ai.vectorstore.InMemoryVectorStore;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.jdbc.core.JdbcTemplate;
+
+
 
 /**
  *
@@ -36,18 +33,13 @@ import org.springframework.jdbc.core.JdbcTemplate;
 public class AiConfiguration {
 
 	@Bean
-	public VectorStoreRetriever vectorStoreRetriever(VectorStore vectorStore) {
-		return new VectorStoreRetriever(vectorStore);
-	}
-
-	@Bean
 	public VectorStoreInitializer vectorStoreInitializer(VectorStore vectorStore) {
 		return new VectorStoreInitializer(vectorStore);
 	}
 
 	@Bean
-	public MessageRetriever messageRetriever(VectorStoreRetriever vectorStoreRetriever, AiClient aiClient) {
-		return new MessageRetriever(vectorStoreRetriever, aiClient);
+	public MessageRetriever messageRetriever(VectorStore vectorStoreRetriever, ChatClient chatClient) {
+		return new MessageRetriever(vectorStoreRetriever, chatClient);
 	}
 
 }
